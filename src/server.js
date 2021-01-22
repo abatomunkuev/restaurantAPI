@@ -19,14 +19,14 @@ app.use(bodyParser.json())
 
 // Routes
 app.get('/', (req, res) => {
-    res.status(201).send('Hello this is WEB API application using REST API')
+    res.status(201).send({ message: 'API Listening' })
 })
 
 app.post('/api/restaurants', (req, res) => {
     db.addNewRestaurant(req.body)
         .then((result) => {
             res.status(201).json({
-                message: `Restaurant has been successfully added`,
+                message: result,
             })
         })
         .catch((error) => {
