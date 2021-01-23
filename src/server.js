@@ -1,3 +1,13 @@
+/*********************************************************************************
+ * WEB422 – Assignment 1
+ * I declare that this assignment is my own work in accordance with Seneca Academic Policy.
+ * No part of this assignment has been copied manually or electronically from any other source
+ * (including web sites) or distributed to other students.
+ *
+ * Name: Andrei Batomunkuev______ Student ID: 119124196____ Date: 22 January 2021_____
+ * Heroku Link: https://ancient-eyrie-99048.herokuapp.com
+ *
+ ********************************************************************************/
 const express = require('express')
 require('dotenv').config()
 const bodyParser = require('body-parser')
@@ -23,6 +33,7 @@ app.get('/', (req, res) => {
 })
 
 app.post('/api/restaurants', (req, res) => {
+    // This route adds a new "Restaurant" document to the collection
     db.addNewRestaurant(req.body)
         .then((result) => {
             res.status(201).json({
@@ -35,12 +46,14 @@ app.post('/api/restaurants', (req, res) => {
 })
 
 app.get('/api/restaurants', (req, res) => {
+    // This route return all "Restaurant" objects for a specific "page" to the client
+    // as well as optionally filtering by "borough", if provided.
     let page = req.query.page
     let perPage = req.query.perPage
     let borough = req.query.borough
     db.getAllRestaurants(page, perPage, borough)
         .then((result) => {
-            if (!result) {
+            if (result.length == 0) {
                 res.status(404).json({
                     error_message: 'No restaurants founded',
                 })
@@ -48,11 +61,12 @@ app.get('/api/restaurants', (req, res) => {
             res.status(200).json(result)
         })
         .catch((err) => {
-            res.status(500).json(err)
+            res.status(400).json({ error_message: `${err}` })
         })
 })
 
 app.get('/api/restaurants/:id', (req, res) => {
+    // This route return a specific "Restaurant" object to the client based on id provided
     let id = req.params.id
     db.getRestaurantById(id)
         .then((result) => {
@@ -67,6 +81,7 @@ app.get('/api/restaurants/:id', (req, res) => {
 })
 
 app.put('/api/restaurants/:id', (req, res) => {
+    // This route updates a specific "Restaurant" document in the collection
     let id = req.params.id
     db.updateRestaurantById(req.body, id)
         .then((result) => {
@@ -82,6 +97,7 @@ app.put('/api/restaurants/:id', (req, res) => {
 })
 
 app.delete('/api/restaurants/:id', (req, res) => {
+    // This route deletes a specific "Restaurant" document from the collection
     let id = req.params.id
     db.deleteRestaurantById(id)
         .then((result) => {
