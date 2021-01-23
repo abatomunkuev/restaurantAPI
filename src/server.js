@@ -19,7 +19,7 @@ app.use(bodyParser.json())
 
 // Routes
 app.get('/', (req, res) => {
-    res.status(201).send({ message: 'API Listening' })
+    res.status(200).send({ message: 'API Listening' })
 })
 
 app.post('/api/restaurants', (req, res) => {
@@ -70,11 +70,6 @@ app.put('/api/restaurants/:id', (req, res) => {
     let id = req.params.id
     db.updateRestaurantById(req.body, id)
         .then((result) => {
-            if (!result) {
-                res.status(404).json({
-                    error_message: `There is no restaurant with id: ${id} to update`,
-                })
-            }
             res.status(200).json({
                 message: result,
             })
@@ -90,12 +85,7 @@ app.delete('/api/restaurants/:id', (req, res) => {
     let id = req.params.id
     db.deleteRestaurantById(id)
         .then((result) => {
-            if (!result) {
-                res.status(404).json({
-                    error_message: `There is no restaurant with id: ${id} to delete`,
-                })
-            }
-            res.status(200).json({
+            res.status(204).json({
                 message: result,
             })
         })
