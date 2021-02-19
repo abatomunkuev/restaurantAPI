@@ -46,43 +46,40 @@ app.post('/api/restaurants', (req, res) => {
         })
 })
 
-app.get('/api/restaurants/cuisines', (req, res) => {
-    let page = req.query.page
-    let perPage = req.query.perPage
-    let cuisine = req.query.cuisine
-    console.log(cuisine)
-    db.getRestaurantsByCuisine(page, perPage, cuisine)
-        .then((result) => {
-            if (!result) {
-                res.status(404).json({
-                    error_message: `No restaurants found with cuisine ${cuisine}`,
-                })
-            }
-            res.status(200).json(result)
-        })
-        .catch((error) => {
-            res.status(400).json({ error_message: error })
-        })
-})
-
 app.get('/api/restaurants', (req, res) => {
     // This route return all "Restaurant" objects for a specific "page" to the client
     // as well as optionally filtering by "borough", if provided.
     let page = req.query.page
     let perPage = req.query.perPage
     let borough = req.query.borough
-    db.getAllRestaurants(page, perPage, borough)
-        .then((result) => {
-            if (result.length == 0) {
-                res.status(404).json({
-                    error_message: 'No restaurants found',
-                })
-            }
-            res.status(200).json(result)
-        })
-        .catch((err) => {
-            res.status(400).json({ error_message: `${err}` })
-        })
+    let cuisine = req.query.cuisine
+    if (cuisine) {
+        db.getRestaurantsByCuisine(page, perPage, cuisine)
+            .then((result) => {
+                if (!result) {
+                    res.status(404).json({
+                        error_message: `No restaurants found with cuisine ${cuisine}`,
+                    })
+                }
+                res.status(200).json(result)
+            })
+            .catch((error) => {
+                res.status(400).json({ error_message: error })
+            })
+    } else {
+        db.getAllRestaurants(page, perPage, borough)
+            .then((result) => {
+                if (result.length == 0) {
+                    res.status(404).json({
+                        error_message: 'No restaurants found',
+                    })
+                }
+                res.status(200).json(result)
+            })
+            .catch((err) => {
+                res.status(400).json({ error_message: `${err}` })
+            })
+    }
 })
 
 app.get('/api/restaurants/:id', (req, res) => {
