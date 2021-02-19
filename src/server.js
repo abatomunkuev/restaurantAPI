@@ -13,6 +13,7 @@ require('dotenv').config()
 const bodyParser = require('body-parser')
 const cors = require('cors')
 const config = require('./db/config')
+const openGeocoder = require('node-open-geocoder')
 const RestaurantDB = require('./modules/restaurantDB.js')
 
 // Database configuration
@@ -45,6 +46,25 @@ app.post('/api/restaurants', (req, res) => {
         })
 })
 
+app.get('/api/restaurants/cuisines', (req, res) => {
+    let page = req.query.page
+    let perPage = req.query.perPage
+    let cuisine = req.query.cuisine
+    console.log(cuisine)
+    db.getRestaurantsByCuisine(page, perPage, cuisine)
+        .then((result) => {
+            if (!result) {
+                res.status(404).json({
+                    error_message: `No restaurants found with cuisine ${cuisine}`,
+                })
+            }
+            res.status(200).json(result)
+        })
+        .catch((error) => {
+            res.status(400).json({ error_message: error })
+        })
+})
+
 app.get('/api/restaurants', (req, res) => {
     // This route return all "Restaurant" objects for a specific "page" to the client
     // as well as optionally filtering by "borough", if provided.
@@ -55,7 +75,7 @@ app.get('/api/restaurants', (req, res) => {
         .then((result) => {
             if (result.length == 0) {
                 res.status(404).json({
-                    error_message: 'No restaurants founded',
+                    error_message: 'No restaurants found',
                 })
             }
             res.status(200).json(result)
@@ -71,7 +91,7 @@ app.get('/api/restaurants/:id', (req, res) => {
     db.getRestaurantById(id)
         .then((result) => {
             if (!result) {
-                res.status(404).json({ error_message: 'No restaurant founded' })
+                res.status(404).json({ error_message: 'No restaurant found' })
             }
             res.status(200).json(result)
         })
@@ -91,7 +111,7 @@ app.put('/api/restaurants/:id', (req, res) => {
         })
         .catch((error) => {
             res.status(400).json({
-                error_message: `Error occured in updating restaurant with id: ${id}, ${error}`,
+                error_message: `Error occurred in updating restaurant with id: ${id}, ${error}`,
             })
         })
 })
@@ -107,8 +127,22 @@ app.delete('/api/restaurants/:id', (req, res) => {
         })
         .catch((error) => {
             res.status(400).json({
-                error_message: `Error occured when deleting a restaurant with id: ${id}, ${error}`,
+                error_message: `Error occurred when deleting a restaurant with id: ${id}, ${error}`,
             })
+        })
+})
+
+app.post('/api/location', (req, res) => {
+    const FORM_DATA = req.body
+    openGeocoder()
+        .geocode(FORM_DATA.address)
+        .end((err, result) => {
+            if (err) {
+                return res.status(400).json({
+                    error_message: `Error occurred when fetching a location`,
+                })
+            }
+            res.status(200).json(result)
         })
 })
 
